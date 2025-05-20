@@ -8,8 +8,9 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import spacy
 from geopy.geocoders import Nominatim
+import ast  # safer than eval for JSON string parsing
 
-# Load spaCy model (make sure en_core_web_sm is installed)
+# Load spaCy model (make sure you installed it: python -m spacy download en_core_web_sm)
 nlp = spacy.load("en_core_web_sm")
 
 # Geolocator setup
@@ -29,13 +30,15 @@ RSS_FEEDS = [
 # Firebase init
 def init_firebase():
     if not firebase_admin._apps:
-        # Load creds JSON from environment variable
         cred_json = os.getenv("FIREBASE_CREDENTIALS")
         if not cred_json:
             raise Exception("FIREBASE_CREDENTIALS env var not set!")
-        cred = credentials.Certificate(eval(cred_json))  # convert string to dict
+        
+        # Convert string to dict safely
+        cred_dict = ast.literal_eval(cred_json)
+        cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred)
-
+    
     return firestore.client()
 
 db = None
@@ -52,7 +55,6 @@ def save_to_firebase(article):
     if db_contains_article(url_hash):
         print(f"[SKIP] Already in DB: {article['link']}")
         return
-
     doc_ref = db.collection("crime_reports").document(url_hash)
     doc_ref.set(article)
     print(f"[SAVED] {article['title']}")
