@@ -1,0 +1,31 @@
+name: Scheduled News Scraper
+
+on:
+  schedule:
+    - cron: '0 * * * *'   # Runs at minute 0 of every hour
+  workflow_dispatch:      # You can also run it manually anytime
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4 feedparser spacy geopy firebase-admin
+
+    - name: Run scraper
+      env:
+        FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}  # store your Firebase creds JSON here as a secret
+      run: |
+        echo "$FIREBASE_CREDENTIALS" > firebase_credentials.json
+        python news-scraper.py
