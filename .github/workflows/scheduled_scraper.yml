@@ -2,7 +2,7 @@ name: Scheduled News Scraper
 
 on:
   schedule:
-    - cron: '0 * * * *'   # Runs at minute 0 of every hour
+  - cron: '*/5 * * * *'  # Every 5 minutes
   workflow_dispatch:      # You can also run it manually anytime
 
 jobs:
