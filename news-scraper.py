@@ -55,8 +55,10 @@ def save_to_firebase(article):
     if db_contains_article(url_hash):
         print(f"[SKIP] Already in DB: {article['link']}")
         return
+    doc_ref2 = db.collection("news_report").document(url_hash)
     doc_ref = db.collection("crime_reports").document(url_hash)
     doc_ref.set(article)
+    doc_ref2.set(article)
     print(f"[SAVED] {article['title']}")
 
 def extract_text_from_url(url):
